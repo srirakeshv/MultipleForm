@@ -15,6 +15,11 @@ const Form = () => {
   const [candidatenameError, setCandidatenameError] = useState(""); //error for candidatename
   const [phoneError, setPhoneError] = useState(""); //error for phoneerror
   const [done, setDone] = useState(null); //setting tick mark trua and false
+  const [updatedData, setUpdatedData] = useState({
+    updatecandidatename: "",
+    updateemail: "",
+    updatephonenumber: "",
+  }); //initializing the data for updating
 
   //tracking onchange events
   const handleChange = (e) => {
@@ -49,7 +54,7 @@ const Form = () => {
       hasError = true;
     }
 
-    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    const emailPattern = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/;
 
     // Checking email
     if (inputData.email === "") {
@@ -89,13 +94,40 @@ const Form = () => {
   };
 
   //update the row
-  const handleEdit = (index) => {
+  const handleEdit = (index, data) => {
+    //passing that particular index data to input field
+    setUpdatedData({
+      updatecandidatename: data.candidatename,
+      updateemail: data.email,
+      updatephonenumber: data.phonenumber,
+    });
     setDone(index);
   };
 
   //handletick
-  const handleTickmark = () => {
+  const handleTickmark = (index) => {
+    // e.preventDefault();
+    console.log(updatedData);
+    //updating that particluar index in the original data
+    setAllData((prev) => {
+      const newData = [...prev];
+      newData[index] = {
+        candidatename: updatedData.updatecandidatename,
+        email: updatedData.updateemail,
+        phonenumber: updatedData.updatephonenumber,
+      };
+      return newData;
+    });
     setDone(-1);
+  };
+
+  // handle onChange for editable fields
+  const handleEditFieldChange = (e) => {
+    const { name, value } = e.target;
+    setUpdatedData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   return (
@@ -167,18 +199,69 @@ const Form = () => {
                     }`}
                     key={index}
                   >
-                    <td className="px-2 py-3">{data.candidatename}</td>
-                    <td className="px-2 py-3">{data.email}</td>
-                    <td className="px-2 py-3">{data.phonenumber}</td>
-                    <td>
+                    <td className="px-2 py-3">
                       {done === index ? (
-                        <DoneIcon onClick={handleTickmark} />
+                        <input
+                          className="p-2 rounded-md outline-none"
+                          type="text"
+                          name="updatecandidatename"
+                          value={updatedData.updatecandidatename}
+                          onChange={handleEditFieldChange}
+                        />
                       ) : (
-                        <EditIcon onClick={() => handleEdit(index)} />
+                        <p>{data.candidatename}</p>
+                      )}
+                    </td>
+                    <td className="px-2 py-3">
+                      {done === index ? (
+                        <input
+                          className="p-2 rounded-md outline-none"
+                          type="text"
+                          name="updateemail"
+                          value={updatedData.updateemail}
+                          onChange={handleEditFieldChange}
+                        />
+                      ) : (
+                        <p>{data.email}</p>
+                      )}
+                    </td>
+                    <td className="px-2 py-3">
+                      {done === index ? (
+                        <input
+                          className="p-2 rounded-md outline-none"
+                          type="text"
+                          name="updatephonenumber"
+                          value={updatedData.updatephonenumber}
+                          onChange={handleEditFieldChange}
+                        />
+                      ) : (
+                        <p>{data.phonenumber}</p>
                       )}
                     </td>
                     <td>
-                      <DeleteIcon onClick={() => handleDelete(index)} />
+                      {done === index ? (
+                        <button
+                          className="bg-green-600 text-white rounded-md p-2 px-4"
+                          onClick={() => handleTickmark(index)}
+                        >
+                          <DoneIcon /> Update
+                        </button>
+                      ) : (
+                        <button
+                          className="bg-blue-600 text-white rounded-md p-2 px-4"
+                          onClick={() => handleEdit(index, data)}
+                        >
+                          <EditIcon /> Edit
+                        </button>
+                      )}
+                    </td>
+                    <td>
+                      <button
+                        className="bg-red-600 text-white rounded-md p-2 px-4"
+                        onClick={() => handleDelete(index)}
+                      >
+                        <DeleteIcon /> Delete
+                      </button>
                     </td>
                   </tr>
                 ))}
